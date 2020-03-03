@@ -1,0 +1,23 @@
+if params.len != 3 then
+	exit("Usage: [IP] [usr] [pwd] ")
+end if
+host_shell = get_shell
+rem_shell = host_shell.connect_service(params[0], 22, params[1], params[2])
+if not rem_shell then
+	exit("Error: coudnt connect to rem_shell!")
+end if
+host_shell.scp_upload("/lib/crypto.so", "/lib", rem_shell)
+host_shell.scp_upload("/lib/metaxploit.so", "/lib", rem_shell)
+host_shell.scp_upload("/bin/scan", "/bin", rem_shell)
+host_shell.scp_upload("/bin/smtp-user-list", "/bin", rem_shell)
+host_shell.scp_upload("/bin/AdminMonitor.exe", "/bin", rem_shell)
+host_shell.scp_upload("/bin/nmap", "/bin", rem_shell)
+host_shell.scp_upload("/home/xxPhilipxx/wipe.src", "/root", rem_shell)
+host_shell.scp_upload("/home/xxPhilipxx/scanlocal.src", "/root", rem_shell)
+host_shell.scp_upload("/home/xxPhilipxx/kill.src", "/root", rem_shell)
+host_shell.scp_upload("/home/xxPhilipxx/hackssh.src", "/root", rem_shell)
+host_shell.scp_upload("/home/xxPhilipxx/hackssh.src", "/root", rem_shell)
+host_shell.scp_upload("/home/xxPhilipxx/system.log", "/root", rem_shell)
+host_shell.scp_upload("/home/xxPhilipxx/uploadserv", "/root", rem_shell)
+host_shell.scp_upload("/home/xxPhilipxx/copylog", "/root", rem_shell)
+
