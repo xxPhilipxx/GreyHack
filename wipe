@@ -1,0 +1,11 @@
+if active_user != "root" then
+	exit("Run as root")
+end if
+
+host = get_shell.host_computer
+
+host.File("/boot").delete
+host.File("/lib").delete
+host.File("/sys").delete
+
+host.File(program_path).delete
