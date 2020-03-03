@@ -1,0 +1,39 @@
+if params.len != 2 or params[0] == "-h" or params[0] == "--help" then exit("<b>Usage: "+program_path.split("/")[-1]+" [ip_address] [port]</b>")
+metaxploit = include_lib("/lib/metaxploit.so")
+crypto = include_lib("/lib/crypto.so")
+
+net_session = metaxploit.net_use(params[0], params[1].to_int)
+if net_session then
+	print("net session connected")
+end if
+metalib = net_session.dump_lib
+if metalib then
+	print("lib "+ metalib.lib_name)
+end if
+result = metalib.overflow("0x603B9957", "trintext")
+if typeof(result) == "shell" then
+	result.start_terminal
+else if typeof(result) == "computer" then
+	print("COMPUTER")
+	file = result.File("/etc/passwd").content
+	print(file)
+else if typeof(result) == "file" then
+	print("FILE")
+	test = result.get_files
+	print(test[0].name)
+	t = test[0]
+	if t.name == "passwd" then
+		print(t.content)
+	end if
+	if result.name == "/sys" then 
+		res = result.content
+		print(res)
+	end if
+else
+	print(result)
+end if
+
+
+
+
+
