@@ -1,39 +1,567 @@
-if params.len != 2 or params[0] == "-h" or params[0] == "--help" then exit("<b>Usage: "+program_path.split("/")[-1]+" [ip_address] [port]</b>")
+//command scanlib
+if params.len != 0 then
+	if params[0] == "-h" or params[0] == "--help" then exit("Error: scan [IP] [Port] [Memory Address] [Vuln Func]")
+end if
+metaxploit = null 
 metaxploit = include_lib("/lib/metaxploit.so")
-crypto = include_lib("/lib/crypto.so")
+if not metaxploit then 
+	metaxploit = include_lib(current_path+"/metaxploit.so")
+end if
+computer_ = function(ovr)
+	if typeof(ovr) != "computer" then return false
+	while(true)
+		print("----[Computer]----")
+		print("please Select Number")
+		print("[1] = Read File")
+		print("[2] = Write File")
+		print("[3] = Upload File")
+		print("[4] = Download File")
+		print("[5] = Change Password of User")
+		print("[999] = Back")
+		num = user_input("\n>")
+		if num == "1" then
+			filepath = user_input("File with path: ")
+			file = ovr.File(filepath)
+			if file == null then 
+				print("Error File not found!")
+				continue
+			end if
+			print("File Content: ")
+			print(file.content)
+		else if num == "2" then
+			filepath = user_input("File path (wihout the File itself): ")
+			f = user_input("file with extension: ")
+			file = ovr.File(filepath)
+			if file == null then 
+				err = touch(filepath,f)
+				if err != 1 then
+					print(err)
+				else
+					file = ovr.File(filepath)
+					if file == null then 
+						print("Error File could not be created.")
+					else
+						cont = user_input("content > ")
+						e = file.set_content(cont)
+						if e != 1 then 
+							print(e)
+						else
+							print("Content Successfully set!")
+						end if
+					end if
+				end if
+			end if
+		
+		else if num == "3" then
+			// Upload 
+			
+		else if num == "4" then
+			// Donwload
+			filepath = user_input("File path: ")
+			file = ovr.File(filepath)
+			a = filepath.split("/")
+			fileloc = get_shell.host_computer.File(home_dir+"/Downloads/"+a[a.len-1] )
+			if fileloc == null then 
+				p = get_shell.host_computer.touch(home_dir+"/Downloads/",a[a.len-1])
+				if p != 1 then 
+					print(p)
+				else
+					if file == null then 
+						print("File Cannt be Found in "+filepath)
+					else
+						o = fileloc.set_content(file.content)
+						if o != 1 then
+							print(o)
+						else
+							print("File Downloaded!")
+							print("Path: "+home_dir+"/Downloads/"+a[a.len-1])
+						end if
+					end if
+				end if
+			else
+				if file == null then 
+					print("File Cannt be Found in "+filepath)
+				else
+					fileloc = get_shell.host_computer.File(home_dir+"/Downloads/"+a[a.len-1] )
+					o = fileloc.set_content(file.content)
+					if o != 1 then
+						print(o)
+					else
+						print("File Downloaded!")
+						print("Path: "+home_dir+"/Downloads/"+a[a.len-1])
+					end if
+				end if
+			end if
+		else if num == "5" then
+			user = user_input("User: ")
+			ok = ovr.change_password(user,"1234")
+			if ok == 1 then
+				print("Password for user "+ user +" was successfully changed to: 1234")
+			else
+				print("Error while Password change!")
+			end if
+		else if num == "999" then
+			break
+		end if
+	end while
+end function
+shell_ = function(ovr)
+	if typeof(ovr) != "shell" then return false
+	while(true)
+		print("----[Shell]----")
+		print("please Select Number")
+		print("[1] = Execute Remote Terminal with scan upload")
+		print("[2] = Execute Remote Terminal without scan upload")
+		print("[999] = Back")
+		inp = user_input(">")
+		if inp == "1" then
+			user = user_input("please enter username: ")
+			if user == "root" then
+				get_shell.scp(home_dir+"/metaxploit.so","/"+user+"/",ovr)
+				get_shell.scp(home_dir+"/scan","/"+user+"/",ovr)
+				print(home_dir+"/metaxploit.so")
+			else
+				get_shell.scp(home_dir+"/metaxploit.so","/home/"+user+"/",ovr)
+				get_shell.scp(home_dir+"/scan","/home/"+user+"/",ovr)
+				print(home_dir+"/metaxploit.so")
+			end if
+			ovr.start_terminal()
+		else if inp == "2" then
+			ovr.start_terminal()
+		else if inp == "999" then
+			break
+		end if
+	end while
+end function
+file_ = function(ovr)
+	if typeof(ovr) != "file" then return false
+	while(true)
+		print("----[file]----")
+		print(ovr.path)
+		print("Owner: "+ ovr.owner + " Group: "+ ovr.group)
+		print("Perms: "+ovr.permissions)
+		print("please Select Number")
+		print("[1] = Read")
+		print("[2] = Write")
+		print("[999] = Back")
+		inp = user_input(">")
+		if inp == "1" then
+			print("Content: ")
+			print(ovr.content)
+		else if inp == "2" then
+			cont = user_input("cont>")
+			l = ovr.set_content(cont)
+			if l != 1 then 
+				print(l)
+			else
+				print("Write ok!")
+			end if
+		else if inp == "999" then
+			break
+		end if
+	end while
+end function
+folder_ = function(ovr)
+	if typeof(ovr) != "file" then return false
+	while(true)
+		print("----[folder]----")
+		print(ovr.path+"/")
+		print("please Select Number")
+		print("[1] = folders("+ovr.get_folders.len+")")
+		print("[2] = files("+ovr.get_files.len+")")
+		print("[999] = Back")
+		inp = user_input(">")
+		if inp == "1" then
+			while(true)
+				print("----[folders]----")
+				print(ovr.path+"/")
+				i=0
+				for f in ovr.get_folders
+					print("["+i+"] = "+f.path)
+					i = i + 1
+				end for
+				print("[999] = Back")
+				inp = user_input(">")
+				if inp == "999" then
+					break
+				end if
+				if ovr.get_folders.hasIndex(inp.to_int) then
+					folder_(ovr.get_folders[inp.to_int])
+				end if
+			end while 
+		else if inp == "2" then
+			while(true)
+				print("----[files]----")
+				print(ovr.path+"/")
+				i=0
+				for f in ovr.get_files
+					print("["+i+"] = "+f.path)
+					i = i + 1
+				end for
+				print("[999] = Back")
+				inp = user_input(">")
+				if inp == "999" then
+					break
+				end if
+				if ovr.get_files.hasIndex(inp.to_int) then
+					file_(ovr.get_files[inp.to_int])
+				end if
+			end while
+		else if inp == "999" then
+			break
+		end if 
+	end while
+end function 
+fileinit_ = function(ovr)
+	if typeof(ovr) != "file" then return false
+	if ovr.is_folder then
+		folder_(ovr)
+	else
+		file_(ovr)
+	end if
+end function
+handles_ = function(lib,shells,computers,routers,files)
+	while(true)
+		print("----[Main]----")
+		print("No more Vulns found!")
+		print("[1] = Shells ("+shells.len+")")
+		print("[2] = Computers ("+computers.len+")")
+		print("[3] = Routers ("+routers.len+")")
+		print("[4] = Files ("+files.len+")")
+		print("[999] = Back")
+		inp = user_input(">")
+		if inp == "1" then
+			while(true)
+				print("----[Shell]----")
+				for s in shells
+					print("["+s["key"]+"] = "+s["value"])
+				end for
+				print("[999] = Back")
+				s = user_input("select>")
+				if shells.hasIndex(s.to_int) then
+					ovr = lib.overflow(shells[s.to_int]["mem"],shells[s.to_int]["value"])
+					shell_(ovr)
+				else if s == "999" then
+					break
+				end if
+			end while
+		else if inp == "2" then
+			while(true)	
+				print("----[Computer]----")
+				for s in computers
+					print("["+s["key"]+"] = "+s["value"])
+				end for
+				print("[999] = Back")
+				s = user_input("select>")
+				if computers.hasIndex(s.to_int) then
+					ovr = lib.overflow(computers[s.to_int]["mem"],computers[s.to_int]["value"])
+					computer_(ovr)
+				else if s == "999" then
+					break
+				end if
+			end while
+		else if inp == "3" then
+		else if inp == "4" then
+			while(true)	
+				print("----[Files]----")
+				for s in files
+					print("["+s["key"]+"] = "+s["value"])
+				end for
+				print("[999] = Back")
+				s = user_input("select>")
+				if files.hasIndex(s.to_int) then
+					ovr = lib.overflow(files[s.to_int]["mem"],files[s.to_int]["value"])
+					fileinit_(ovr)
+				else if s == "999" then
+					break
+				end if
+			end while
+		else if inp == "999" then
+			break
+		end if
+	end while
+end function
+run = true
+i = 0
+IP = null
+if params.len != 0 then IP = params[0]
+libscanned = {}
+scanport_ = function(port)
+	i = port
+	net_session = metaxploit.net_use(IP,port)
+	if net_session == null then exit("Error: net_session")
+	lib = net_session.dump_lib()
+	print("----SCANNING PORT: "+i+"-----")
+	print("Scanning memory address...")
+	listMem = metaxploit.scan(lib)
+	index = 1
+	for itemMem in listMem
+		print(index +": [" + itemMem + "]")
+		index = index + 1
+	end for
+	if listMem.len == 0 then exit("Scan completed: No issues detected.")
 
-net_session = metaxploit.net_use(params[0], params[1].to_int)
-if net_session then
-	print("net session connected")
-end if
-metalib = net_session.dump_lib
-if metalib then
-	print("lib "+ metalib.lib_name)
-end if
-result = metalib.overflow("0x603B9957", "trintext")
-if typeof(result) == "shell" then
-	result.start_terminal
-else if typeof(result) == "computer" then
-	print("COMPUTER")
-	file = result.File("/etc/passwd").content
-	print(file)
-else if typeof(result) == "file" then
-	print("FILE")
-	test = result.get_files
-	print(test[0].name)
-	t = test[0]
-	if t.name == "passwd" then
-		print(t.content)
+	shells = {}
+	computers = {}
+	routers = {}
+	files = {}
+	print("Scan completed: detected issues in " + listMem.len + " memory zones.")
+	for itemMem in listMem
+		print("Scanning for vulnerabilities at memory zone: " + itemMem)
+		vuln = metaxploit.scan_address(lib, itemMem)
+		lel = {}	
+		word = false
+		wordi = 0
+		for i in vuln
+			if i == "<" then
+				word = true
+				if not lel.hasIndex(wordi) then lel[wordi] = ""
+				lel[wordi] = lel[wordi] + i
+			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") then
+				wordi = wordi + 1
+				word = false
+			else if lel.hasIndex(wordi) and word then
+				lel[wordi] = lel[wordi] + i
+			end if
+		end for
+		newlel = {}
+		for k in lel
+			val = k["value"]
+			if val.indexOf(".so") == null and val.indexOf(".") == null then 
+				newlel[newlel.len] = val.replace("<b>","").replace("</b>","")
+			end if
+		end for
+		for l in newlel
+			print("Address: "+ itemMem)
+			print("Vuln Func: "+ l["value"])
+			ovr = lib.overflow(itemMem,l["value"],"1234")
+			if typeof(ovr) == "shell" then
+				shells[shells.len+1] = {"mem":itemMem,"value": l["value"]}
+			else if typeof(ovr) == "computer" then
+				computers[computers.len+1] = {"mem":itemMem,"value": l["value"]}
+			else if typeof(ovr) == "file" then
+				files[files.len+1] = {"mem":itemMem,"value": l["value"]}
+			end if
+		end for
+	end for
+	handles_(lib,shells,computers,routers,files)
+end function
+handlescannes_ = function()
+	while(true)
+		print("----Scanned----")
+		print("Select One Port/Lib")
+		for k in libscanned
+			print("["+k["key"]+"] = ("+k["value"]+")")
+		end for
+		print("[999] = Exit")
+		inp = user_input(">")
+		if libscanned.hasIndex(inp.to_int) then
+			scanport_(inp.to_int)
+		else if inp == "999" then
+			break
+		end if
+	end while
+end function
+scanlib_ = function(f)
+	lib = metaxploit.load(f.path)
+	if not lib then exit("can't find library !")
+	print("Found Lib: "+lib.lib_name())
+	print("Scanning memory address...")
+	listMem = metaxploit.scan(lib)
+	index = 1
+	for itemMem in listMem
+		print(index +": [" + itemMem + "]")
+		index = index + 1
+	end for
+	if listMem.len == 0 then exit("Scan completed: No issues detected.")
+	shells = {}
+	computers = {}
+	routers = {}
+	files = {}
+	print("Scan completed: detected issues in " + listMem.len + " memory zones.")
+	for itemMem in listMem
+		print("Scanning for vulnerabilities at memory zone: " + itemMem)
+		vuln = metaxploit.scan_address(lib, itemMem)
+		lel = {}	
+		word = false
+		wordi = 0
+		for i in vuln
+			if i == "<" then
+				word = true
+				if not lel.hasIndex(wordi) then lel[wordi] = ""
+				lel[wordi] = lel[wordi] + i
+			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") then
+				wordi = wordi + 1
+				word = false
+			else if lel.hasIndex(wordi) and word then
+				lel[wordi] = lel[wordi] + i
+			end if
+		end for
+		newlel = {}
+		for k in lel
+			val = k["value"]
+			if val.indexOf(".so") == null and val.indexOf(".") == null then 
+				newlel[newlel.len] = val.replace("<b>","").replace("</b>","")
+			end if
+		end for
+		for l in newlel
+			print("Address: "+ itemMem)
+			print("Vuln Func: "+ l["value"])
+			ovr = lib.overflow(itemMem,l["value"],"1234")
+			if typeof(ovr) == "shell" then
+				shells[shells.len+1] = {"mem":itemMem,"value": l["value"]}
+			else if typeof(ovr) == "computer" then
+				computers[computers.len+1] = {"mem":itemMem,"value": l["value"]}
+			else if typeof(ovr) == "file" then
+				files[files.len+1] = {"mem":itemMem,"value": l["value"]}
+			else
+				print("----------")
+				print(typeof(ovr))
+				print(ovr)
+				print("----------")
+			end if
+		end for
+	end for
+	handles_(lib,shells,computers,routers,files)
+end function
+
+handlescanneslocal_ = function()
+	while(true)
+		print("----Scanned----")
+		print("Select One Lib")
+		i = 0
+		for k in get_shell.host_computer.File("/lib").get_files
+			print("["+i+"] = ("+k.path+")")
+			i = i +1
+		end for
+		print("[999] = Exit")
+		inp = user_input(">")
+		if get_shell.host_computer.File("/lib").get_files.hasIndex(inp.to_int) then
+			scanlib_(get_shell.host_computer.File("/lib").get_files[inp.to_int])
+		else if inp == "999" then
+			break
+		end if
+	end while
+end function
+
+if params.len == 2 then 
+	port = params[1] 
+	print("----SCANNING PORT: "+port+"-----")
+	net_session = metaxploit.net_use(IP,port.val)
+	if net_session == null then exit("Error: net_session")
+	lib = net_session.dump_lib()
+	if not lib then exit("can't find library !")
+	print("Found Lib: "+lib.lib_name())
+	print("Scanning memory address...")
+	listMem = metaxploit.scan(lib)
+	index = 1
+	for itemMem in listMem
+		print(index +": [" + itemMem + "]")
+		index = index + 1
+	end for
+	if listMem.len == 0 then exit("Scan completed: No issues detected.")
+	
+	shells = {}
+	computers = {}
+	routers = {}
+	files = {}
+	print("Scan completed: detected issues in " + listMem.len + " memory zones.")
+	for itemMem in listMem
+		print("Scanning for vulnerabilities at memory zone: " + itemMem)
+		vuln = metaxploit.scan_address(lib, itemMem)
+		lel = {}	
+		word = false
+		wordi = 0
+		for i in vuln
+			if i == "<" then
+				word = true
+				if not lel.hasIndex(wordi) then lel[wordi] = ""
+				lel[wordi] = lel[wordi] + i
+			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") then
+				wordi = wordi + 1
+				word = false
+			else if lel.hasIndex(wordi) and word then
+				lel[wordi] = lel[wordi] + i
+			end if
+		end for
+		newlel = {}
+		for k in lel
+			val = k["value"]
+			if val.indexOf(".so") == null and val.indexOf(".") == null then 
+				newlel[newlel.len] = val.replace("<b>","").replace("</b>","")
+			end if
+	    end for
+        for l in newlel
+            print("Address: "+ itemMem)
+            print("Vuln Func: "+ l["value"])
+            ovr = lib.overflow(itemMem,l["value"],"1234")
+            if typeof(ovr) == "shell" then
+                shells[shells.len+1] = {"mem":itemMem,"value": l["value"]}
+            else if typeof(ovr) == "computer" then
+				computers[computers.len+1] = {"mem":itemMem,"value": l["value"]}
+			else if typeof(ovr) == "file" then
+				files[files.len+1] = {"mem":itemMem,"value": l["value"]}
+            else
+				print("----------")
+				print(typeof(ovr))
+				print(ovr)
+				print("----------")
+			end if
+        end for
+	end for
+	handles_(lib,shells,computers,routers,files)
+else if params.len == 4 then
+	port = params[1] 
+	print("----PORT: "+port+"-----")
+	net_session = metaxploit.net_use(IP,port.val)
+	if net_session == null then exit("Error: net_session")
+	lib = net_session.dump_lib()
+	if not lib then exit("can't find library !")
+	print("Found Lib: "+lib.lib_name())
+	print("----Executing Overflow with infos")
+	lib.overflow(params[2],params[3],"1234")
+else if params.len == 1 then
+	ipAddress = params[0]
+	isLanIp = is_lan_ip( ipAddress )
+
+	if isLanIp then
+	router = get_router;
+	else 
+	router = get_router( ipAddress )
 	end if
-	if result.name == "/sys" then 
-		res = result.content
-		print(res)
+
+	if router == null then exit("nmap: ip address not found")
+	ports = null
+
+	if not isLanIp then
+	ports = router.used_ports
+	else
+	ports = router.device_ports(ipAddress)
 	end if
+
+	if ports == null then exit("nmap: ip address not found")
+	if typeof(ports) == "string" then exit(ports)
+	print("Interesting ports on " + params[0] + "\n")
+	if(ports.len == 0) then exit("Scan finished. No open ports.")
+	for k in ports
+		i = k.port_number
+		port = i 
+		net_session = metaxploit.net_use(IP,port)
+		if net_session == null then continue
+		lib = net_session.dump_lib()
+		if not lib then exit("can't find library !")
+		if libscanned.hasIndex(lib.lib_name()) then 
+			continue
+		end if
+		libscanned[i] = lib.lib_name()
+	end for
+	// Router
+	net_session = metaxploit.net_use(IP)
+	if net_session == null then handlescannes_()
+	lib = net_session.dump_lib()
+	if not lib then exit("can't find library !")
+	libscanned[0] = lib.lib_name()
+	handlescannes_()
 else
-	print(result)
+	handlescanneslocal_()
 end if
-
-
-
-
-
