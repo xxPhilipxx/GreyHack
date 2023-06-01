@@ -317,7 +317,7 @@ scanport_ = function(port)
 				word = true
 				if not lel.hasIndex(wordi) then lel[wordi] = ""
 				lel[wordi] = lel[wordi] + i
-			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") then
+			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") != -1 then
 				wordi = wordi + 1
 				word = false
 			else if lel.hasIndex(wordi) and word then
@@ -390,7 +390,7 @@ scanlib_ = function(f)
 				word = true
 				if not lel.hasIndex(wordi) then lel[wordi] = ""
 				lel[wordi] = lel[wordi] + i
-			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") then
+			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") != -1 then
 				wordi = wordi + 1
 				word = false
 			else if lel.hasIndex(wordi) and word then
@@ -477,7 +477,7 @@ if params.len == 2 then
 				word = true
 				if not lel.hasIndex(wordi) then lel[wordi] = ""
 				lel[wordi] = lel[wordi] + i
-			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") then
+			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") != -1 then
 				wordi = wordi + 1
 				word = false
 			else if lel.hasIndex(wordi) and word then
