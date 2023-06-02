@@ -28,7 +28,7 @@ computer_ = function(ovr)
 				continue
 			end if
 			print("File Content: ")
-			print(file.content)
+			print(file.get_content)
 		else if num == "2" then
 			filepath = user_input("File path (wihout the File itself): ")
 			f = user_input("file with extension: ")
@@ -70,7 +70,7 @@ computer_ = function(ovr)
 					if file == null then 
 						print("File Cannt be Found in "+filepath)
 					else
-						o = fileloc.set_content(file.content)
+						o = fileloc.set_content(file.get_content)
 						if o != 1 then
 							print(o)
 						else
@@ -84,7 +84,7 @@ computer_ = function(ovr)
 					print("File Cannt be Found in "+filepath)
 				else
 					fileloc = get_shell.host_computer.File(home_dir+"/Downloads/"+a[a.len-1] )
-					o = fileloc.set_content(file.content)
+					o = fileloc.set_content(file.get_content)
 					if o != 1 then
 						print(o)
 					else
@@ -162,7 +162,7 @@ file_ = function(ovr)
 		inp = user_input(">")
 		if inp == "1" then
 			print("Content: ")
-			print(ovr.content)
+			print(ovr.get_content)
 		else if inp == "2" then
 			cont = user_input("cont>")
 			l = ovr.set_content(cont)
