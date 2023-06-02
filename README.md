@@ -2,7 +2,7 @@
 
 This is a Repository with a nice tool coded by myself :D
 
-hanks to https://github.com/NTF121 for fixing a script error!
+Thanks to https://github.com/NTF121 for fixing a script error!
 
 # Scan.src:
 
