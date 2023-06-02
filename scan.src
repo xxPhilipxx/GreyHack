@@ -235,7 +235,7 @@ fileinit_ = function(ovr)
 		file_(ovr)
 	end if
 end function
-handles_ = function(lib,shells,computers,routers,files)
+handles_ = function(lib,shells,computers,routers,files,lanip)
 	while(true)
 		print("----[Main]----")
 		print("No more Vulns found!")
@@ -269,7 +269,7 @@ handles_ = function(lib,shells,computers,routers,files)
 				print("[999] = Back")
 				s = user_input("select>")
 				if computers.hasIndex(s.to_int) then
-					ovr = lib.overflow(computers[s.to_int]["mem"],computers[s.to_int]["value"])
+					ovr = lib.overflow(computers[s.to_int]["mem"],computers[s.to_int]["value"],lanip)
 					computer_(ovr)
 				else if s == "999" then
 					break
@@ -285,7 +285,7 @@ handles_ = function(lib,shells,computers,routers,files)
 				print("[999] = Back")
 				s = user_input("select>")
 				if files.hasIndex(s.to_int) then
-					ovr = lib.overflow(files[s.to_int]["mem"],files[s.to_int]["value"])
+					ovr = lib.overflow(files[s.to_int]["mem"],files[s.to_int]["value"],lanip)
 					fileinit_(ovr)
 				else if s == "999" then
 					break
@@ -303,6 +303,8 @@ if params.len != 0 then IP = params[0]
 libscanned = {}
 scanport_ = function(port)
 	i = port
+	lanip = ""
+	if i == 0 then lanip = user_input("LAN IP of victim: ")
 	net_session = metaxploit.net_use(IP,port)
 	if net_session == null then exit("Error: net_session")
 	lib = net_session.dump_lib()
@@ -349,7 +351,11 @@ scanport_ = function(port)
 		for l in newlel
 			print("Address: "+ itemMem)
 			print("Vuln Func: "+ l["value"])
-			ovr = lib.overflow(itemMem,l["value"],"1234")
+			if lanip then 
+				ovr = lib.overflow(itemMem,l["value"],lanip)
+			else 
+				ovr = lib.overflow(itemMem,l["value"],"1234")
+			end if
 			if typeof(ovr) == "shell" then
 				shells[shells.len+1] = {"mem":itemMem,"value": l["value"]}
 			else if typeof(ovr) == "computer" then
@@ -359,7 +365,7 @@ scanport_ = function(port)
 			end if
 		end for
 	end for
-	handles_(lib,shells,computers,routers,files)
+	handles_(lib,shells,computers,routers,files,lanip)
 end function
 handlescannes_ = function()
 	while(true)
@@ -461,6 +467,8 @@ end function
 
 if params.len == 2 then 
 	port = params[1] 
+	lanip = ""
+	if port == "0" then lanip = user_input("LAN IP of victim: ")
 	print("----SCANNING PORT: "+port+"-----")
 	net_session = metaxploit.net_use(IP,port.val)
 	if net_session == null then exit("Error: net_session")
@@ -509,7 +517,11 @@ if params.len == 2 then
         for l in newlel
             print("Address: "+ itemMem)
             print("Vuln Func: "+ l["value"])
-            ovr = lib.overflow(itemMem,l["value"],"1234")
+            if lanip then 
+				ovr = lib.overflow(itemMem,l["value"],lanip)
+			else 
+				ovr = lib.overflow(itemMem,l["value"],"1234")
+			end if
             if typeof(ovr) == "shell" then
                 shells[shells.len+1] = {"mem":itemMem,"value": l["value"]}
             else if typeof(ovr) == "computer" then
@@ -524,9 +536,11 @@ if params.len == 2 then
 			end if
         end for
 	end for
-	handles_(lib,shells,computers,routers,files)
+	handles_(lib,shells,computers,routers,files,lanip)
 else if params.len == 4 then
 	port = params[1] 
+	lanip = ""
+	if port == "0" then lanip = user_input("LAN IP of victim: ")
 	print("----PORT: "+port+"-----")
 	net_session = metaxploit.net_use(IP,port.val)
 	if net_session == null then exit("Error: net_session")
@@ -534,7 +548,11 @@ else if params.len == 4 then
 	if not lib then exit("can't find library !")
 	print("Found Lib: "+lib.lib_name())
 	print("----Executing Overflow with infos")
-	ovr = lib.overflow(params[2],params[3],"1234")
+	if lanip then 
+		ovr = lib.overflow(itemMem,l["value"],lanip)
+	else 
+		ovr = lib.overflow(itemMem,l["value"],"1234")
+	end if
 	if typeof(ovr) == "shell" then
 		shell_(ovr)
 	else if typeof(ovr) == "computer" then
