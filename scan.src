@@ -111,7 +111,7 @@ computer_ = function(ovr)
 				end for
 				print("[999] = Back")
 				inp = user_input(">")
-				if num == "999" then
+				if inp == "999" then
 					break
 				end if
 			end while 
