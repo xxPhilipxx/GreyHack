@@ -549,9 +549,9 @@ else if params.len == 4 then
 	print("Found Lib: "+lib.lib_name())
 	print("----Executing Overflow with infos")
 	if lanip then 
-		ovr = lib.overflow(itemMem,l["value"],lanip)
+		ovr = lib.overflow(params[2],params[3],lanip)
 	else 
-		ovr = lib.overflow(itemMem,l["value"],"1234")
+		ovr = lib.overflow(params[2],params[3],"1234")
 	end if
 	if typeof(ovr) == "shell" then
 		shell_(ovr)
