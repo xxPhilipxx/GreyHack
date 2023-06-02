@@ -534,7 +534,14 @@ else if params.len == 4 then
 	if not lib then exit("can't find library !")
 	print("Found Lib: "+lib.lib_name())
 	print("----Executing Overflow with infos")
-	lib.overflow(params[2],params[3],"1234")
+	ovr = lib.overflow(params[2],params[3],"1234")
+	if typeof(ovr) == "shell" then
+		shell_(ovr)
+	else if typeof(ovr) == "computer" then
+		computer_(ovr)
+	else if typeof(ovr) == "file" then
+		fileinit_(ovr)
+	end if
 else if params.len == 1 then
 	ipAddress = params[0]
 	isLanIp = is_lan_ip( ipAddress )
