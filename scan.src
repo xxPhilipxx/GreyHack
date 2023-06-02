@@ -70,6 +70,7 @@ computer_ = function(ovr)
 					if file == null then 
 						print("File Cannt be Found in "+filepath)
 					else
+						fileloc = get_shell.host_computer.File(home_dir+"/Downloads/"+a[a.len-1] )
 						o = fileloc.set_content(file.get_content)
 						if o != 1 then
 							print(o)
