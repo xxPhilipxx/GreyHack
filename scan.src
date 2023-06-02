@@ -17,6 +17,7 @@ computer_ = function(ovr)
 		print("[3] = Upload File")
 		print("[4] = Download File")
 		print("[5] = Change Password of User")
+		print("[6] = Get list of users")
 		print("[999] = Back")
 		num = user_input("\n>")
 		if num == "1" then
@@ -100,6 +101,20 @@ computer_ = function(ovr)
 			else
 				print("Error while Password change!")
 			end if
+		else if num == "6" then
+			while(true)
+				print("----[users]----")
+				i=0
+				for f in ovr.File("/home").get_folders
+					print("["+i+"] = "+f.name)
+					i = i + 1
+				end for
+				print("[999] = Back")
+				inp = user_input(">")
+				if inp == "999" then
+					break
+				end if
+			end while 
 		else if num == "999" then
 			break
 		end if
@@ -317,7 +332,7 @@ scanport_ = function(port)
 				word = true
 				if not lel.hasIndex(wordi) then lel[wordi] = ""
 				lel[wordi] = lel[wordi] + i
-			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") then
+			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") != -1 then
 				wordi = wordi + 1
 				word = false
 			else if lel.hasIndex(wordi) and word then
@@ -390,7 +405,7 @@ scanlib_ = function(f)
 				word = true
 				if not lel.hasIndex(wordi) then lel[wordi] = ""
 				lel[wordi] = lel[wordi] + i
-			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") then
+			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") != -1 then
 				wordi = wordi + 1
 				word = false
 			else if lel.hasIndex(wordi) and word then
@@ -477,7 +492,7 @@ if params.len == 2 then
 				word = true
 				if not lel.hasIndex(wordi) then lel[wordi] = ""
 				lel[wordi] = lel[wordi] + i
-			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") then
+			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") != -1 then
 				wordi = wordi + 1
 				word = false
 			else if lel.hasIndex(wordi) and word then
