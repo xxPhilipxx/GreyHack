@@ -444,7 +444,7 @@ scanlib_ = function(f)
 			end if
 		end for
 	end for
-	handles_(lib,shells,computers,routers,files)
+	handles_(lib,shells,computers,routers,files,"")
 end function
 
 handlescanneslocal_ = function()
