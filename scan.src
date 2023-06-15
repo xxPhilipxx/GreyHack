@@ -124,13 +124,36 @@ shell_ = function(ovr)
 		if inp == "1" then
 			user = user_input("please enter username: ")
 			if user == "root" then
-				get_shell.scp(home_dir+"/metaxploit.so","/"+user+"/",ovr)
+				if get_shell.host_computer.File("/lib/metaxploit.so") != null then
+					get_shell.scp("/lib/metaxploit.so","/"+user+"/",ovr)
+				else
+					get_shell.scp(home_dir+"/metaxploit.so","/"+user+"/",ovr)
+				end if
 				get_shell.scp(home_dir+"/scan","/"+user+"/",ovr)
 				print(home_dir+"/metaxploit.so")
+				vulnerabfiles = get_shell.host_computer.File(home_dir+"/vulnerabilities")
+				if vulnerabfiles.is_folder then
+					for file in vulnerabfiles.get_files
+						get_shell.scp(vulnerabfiles.path+"/"+file.name,"/"+user+"/vulnerabilities/",ovr)
+						print(vulnerabfiles.path+"/"+file.name)
+					end for
+				end if
 			else
+				if get_shell.host_computer.File("/lib/metaxploit.so") != null then
+					get_shell.scp("/lib/metaxploit.so","/home/"+user+"/",ovr)
+				else
+					get_shell.scp(home_dir+"/metaxploit.so","/home/"+user+"/",ovr)
+				end if
 				get_shell.scp(home_dir+"/metaxploit.so","/home/"+user+"/",ovr)
 				get_shell.scp(home_dir+"/scan","/home/"+user+"/",ovr)
 				print(home_dir+"/metaxploit.so")
+				vulnerabfiles = get_shell.host_computer.File(home_dir+"/vulnerabilities")
+				if vulnerabfiles.is_folder then
+					for file in vulnerabfiles.get_files
+						get_shell.scp(vulnerabfiles.path+"/"+file.name,"/home/"+user+"/vulnerabilities/",ovr)
+						print(vulnerabfiles.path+"/"+file.name)
+					end for
+				end if
 			end if
 			ovr.start_terminal()
 		else if inp == "2" then
@@ -295,13 +318,13 @@ if params.len != 0 then IP = params[0]
 libscanned = {}
 scanfunc_ = function(lib,loadvuln,lanip)
 	if loadvuln then
-		vulnerabfile = get_shell.host_computer.File(home_dir+"/vulnerabilities/",lib.lib_name())
+		vulnerabfile = get_shell.host_computer.File(home_dir+"/vulnerabilities/"+lib.lib_name())
 		listMem = vulnerabfile.get_content()
 	else
 		listMem = metaxploit.scan(lib)
-		vulnerabfile = get_shell.host_computer.File(home_dir+"/vulnerabilities/",lib.lib_name())
+		vulnerabfile = get_shell.host_computer.File(home_dir+"/vulnerabilities/"+lib.lib_name())
 		if vulnerabfile == null then vulnerabfile = get_shell.host_computer.touch(home_dir+"/vulnerabilities/",lib.lib_name())
-		vulnerabfile = get_shell.host_computer.File(home_dir+"/vulnerabilities/",lib.lib_name())
+		vulnerabfile = get_shell.host_computer.File(home_dir+"/vulnerabilities/"+lib.lib_name())
 		vulnerabfile.set_content(listMem)
 	end if
 	index = 1
@@ -367,7 +390,7 @@ scanport_ = function(port)
 	net_session = metaxploit.net_use(IP,port)
 	if net_session == null then exit("Error: net_session")
 	lib = net_session.dump_lib()
-	if get_shell.host_computer.File(home_dir+"/vulnerabilities/",lib.lib_name()) != null then
+	if get_shell.host_computer.File(home_dir+"/vulnerabilities/"+lib.lib_name()) != null then
 		while(true)
 			print("Found exist vulnerabilities list")
 			print("[1] = Use exist vulnerabilities list")
@@ -408,7 +431,7 @@ scanlib_ = function(f)
 	lib = metaxploit.load(f.path)
 	if not lib then exit("can't find library !")
 	print("Found Lib: "+lib.lib_name())
-	if get_shell.host_computer.File(home_dir+"/vulnerabilities/",lib.lib_name()) != null then
+	if get_shell.host_computer.File(home_dir+"/vulnerabilities/"+lib.lib_name()) != null then
 		while(true)
 			print("Found exist vulnerabilities list")
 			print("[1] = Use exist vulnerabilities list")
@@ -457,7 +480,7 @@ if params.len == 2 then
 	lib = net_session.dump_lib()
 	if not lib then exit("can't find library !")
 	print("Found Lib: "+lib.lib_name())
-	if get_shell.host_computer.File(home_dir+"/vulnerabilities/",lib.lib_name()) != null then
+	if get_shell.host_computer.File(home_dir+"/vulnerabilities/"+lib.lib_name()) != null then
 		while(true)
 			print("Found exist vulnerabilities list")
 			print("[1] = Use exist vulnerabilities list")
