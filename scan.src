@@ -1,4 +1,4 @@
-//command scanlib
+//command scanli
 if params.len != 0 then
 	if params[0] == "-h" or params[0] == "--help" then exit("Error: scan [IP] [Port] [Memory Address] [Vuln Func]")
 end if
