@@ -103,19 +103,10 @@ computer_ = function(ovr)
 				print("Error while Password change!")
 			end if
 		else if num == "6" then
-			while(true)
-				print("----[users]----")
-				i=0
-				for f in ovr.File("/home").get_folders
-					print("["+i+"] = "+f.name)
-					i = i + 1
-				end for
-				print("[999] = Back")
-				inp = user_input(">")
-				if inp == "999" then
-					break
-				end if
-			end while 
+			print("----[users]----")
+			for f in ovr.File("/home").get_folders
+				print(f.name)
+			end for
 		else if num == "999" then
 			break
 		end if
@@ -302,16 +293,17 @@ i = 0
 IP = null
 if params.len != 0 then IP = params[0]
 libscanned = {}
-scanport_ = function(port)
-	i = port
-	lanip = ""
-	if i == 0 then lanip = user_input("LAN IP of victim: ")
-	net_session = metaxploit.net_use(IP,port)
-	if net_session == null then exit("Error: net_session")
-	lib = net_session.dump_lib()
-	print("----SCANNING PORT: "+i+"-----")
-	print("Scanning memory address...")
-	listMem = metaxploit.scan(lib)
+scanfunc_ = function(lib,loadvuln,lanip)
+	if loadvuln then
+		vulnerabfile = get_shell.host_computer.File(home_dir+"/vulnerabilities/",lib.lib_name())
+		listMem = vulnerabfile.get_content()
+	else
+		listMem = metaxploit.scan(lib)
+		vulnerabfile = get_shell.host_computer.File(home_dir+"/vulnerabilities/",lib.lib_name())
+		if vulnerabfile == null then vulnerabfile = get_shell.host_computer.touch(home_dir+"/vulnerabilities/",lib.lib_name())
+		vulnerabfile = get_shell.host_computer.File(home_dir+"/vulnerabilities/",lib.lib_name())
+		vulnerabfile.set_content(listMem)
+	end if
 	index = 1
 	for itemMem in listMem
 		print(index +": [" + itemMem + "]")
@@ -368,6 +360,34 @@ scanport_ = function(port)
 	end for
 	handles_(lib,shells,computers,routers,files,lanip)
 end function
+scanport_ = function(port)
+	i = port
+	lanip = ""
+	if i == 0 then lanip = user_input("LAN IP of victim: ")
+	net_session = metaxploit.net_use(IP,port)
+	if net_session == null then exit("Error: net_session")
+	lib = net_session.dump_lib()
+	if get_shell.host_computer.File(home_dir+"/vulnerabilities/",lib.lib_name()) != null then
+		while(true)
+			print("Found exist vulnerabilities list")
+			print("[1] = Use exist vulnerabilities list")
+			print("[2] = Perform new scan")
+			inp = user_input(">")
+			if inp == "1" then
+				print("----PERFORMIMING ATTACK TO MEMORIZED VULNERABILITIES FOR: "+lib.lib_name()+"-----")
+				scanfunc_(lib,true,lanip)
+			else if inp == "2" then
+				print("----SCANNING PORT: "+i+"-----")
+				print("Scanning memory address...")
+				scanfunc_(lib,false,lanip)
+			end if
+		end while
+	else
+		print("----SCANNING PORT: "+i+"-----")
+		print("Scanning memory address...")
+		scanfunc_(lib,false,lanip)
+	end if
+end function
 handlescannes_ = function()
 	while(true)
 		print("----Scanned----")
@@ -388,63 +408,24 @@ scanlib_ = function(f)
 	lib = metaxploit.load(f.path)
 	if not lib then exit("can't find library !")
 	print("Found Lib: "+lib.lib_name())
-	print("Scanning memory address...")
-	listMem = metaxploit.scan(lib)
-	index = 1
-	for itemMem in listMem
-		print(index +": [" + itemMem + "]")
-		index = index + 1
-	end for
-	if listMem.len == 0 then exit("Scan completed: No issues detected.")
-	shells = {}
-	computers = {}
-	routers = {}
-	files = {}
-	print("Scan completed: detected issues in " + listMem.len + " memory zones.")
-	for itemMem in listMem
-		print("Scanning for vulnerabilities at memory zone: " + itemMem)
-		vuln = metaxploit.scan_address(lib, itemMem)
-		lel = {}	
-		word = false
-		wordi = 0
-		for i in vuln
-			if i == "<" then
-				word = true
-				if not lel.hasIndex(wordi) then lel[wordi] = ""
-				lel[wordi] = lel[wordi] + i
-			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") != -1 then
-				wordi = wordi + 1
-				word = false
-			else if lel.hasIndex(wordi) and word then
-				lel[wordi] = lel[wordi] + i
+	if get_shell.host_computer.File(home_dir+"/vulnerabilities/",lib.lib_name()) != null then
+		while(true)
+			print("Found exist vulnerabilities list")
+			print("[1] = Use exist vulnerabilities list")
+			print("[2] = Perform new scan")
+			inp = user_input(">")
+			if inp == "1" then
+				print("----PERFORMIMING ATTACK TO MEMORIZED VULNERABILITIES FOR: "+lib.lib_name()+"-----")
+				scanfunc_(lib,true,"")
+			else if inp == "2" then
+				print("Scanning memory address...")
+				scanfunc_(lib,false,"")
 			end if
-		end for
-		newlel = {}
-		for k in lel
-			val = k["value"]
-			if val.indexOf(".so") == null and val.indexOf(".") == null then 
-				newlel[newlel.len] = val.replace("<b>","").replace("</b>","")
-			end if
-		end for
-		for l in newlel
-			print("Address: "+ itemMem)
-			print("Vuln Func: "+ l["value"])
-			ovr = lib.overflow(itemMem,l["value"],"1234")
-			if typeof(ovr) == "shell" then
-				shells[shells.len+1] = {"mem":itemMem,"value": l["value"]}
-			else if typeof(ovr) == "computer" then
-				computers[computers.len+1] = {"mem":itemMem,"value": l["value"]}
-			else if typeof(ovr) == "file" then
-				files[files.len+1] = {"mem":itemMem,"value": l["value"]}
-			else
-				print("----------")
-				print(typeof(ovr))
-				print(ovr)
-				print("----------")
-			end if
-		end for
-	end for
-	handles_(lib,shells,computers,routers,files,"")
+		end while
+	else
+		print("Scanning memory address...")
+		scanfunc_(lib,false,"")
+	end if
 end function
 
 handlescanneslocal_ = function()
@@ -476,68 +457,24 @@ if params.len == 2 then
 	lib = net_session.dump_lib()
 	if not lib then exit("can't find library !")
 	print("Found Lib: "+lib.lib_name())
-	print("Scanning memory address...")
-	listMem = metaxploit.scan(lib)
-	index = 1
-	for itemMem in listMem
-		print(index +": [" + itemMem + "]")
-		index = index + 1
-	end for
-	if listMem.len == 0 then exit("Scan completed: No issues detected.")
-	
-	shells = {}
-	computers = {}
-	routers = {}
-	files = {}
-	print("Scan completed: detected issues in " + listMem.len + " memory zones.")
-	for itemMem in listMem
-		print("Scanning for vulnerabilities at memory zone: " + itemMem)
-		vuln = metaxploit.scan_address(lib, itemMem)
-		lel = {}	
-		word = false
-		wordi = 0
-		for i in vuln
-			if i == "<" then
-				word = true
-				if not lel.hasIndex(wordi) then lel[wordi] = ""
-				lel[wordi] = lel[wordi] + i
-			else if lel.hasIndex(wordi) and lel[wordi].lastIndexOf("</b>") != -1 then
-				wordi = wordi + 1
-				word = false
-			else if lel.hasIndex(wordi) and word then
-				lel[wordi] = lel[wordi] + i
+	if get_shell.host_computer.File(home_dir+"/vulnerabilities/",lib.lib_name()) != null then
+		while(true)
+			print("Found exist vulnerabilities list")
+			print("[1] = Use exist vulnerabilities list")
+			print("[2] = Perform new scan")
+			inp = user_input(">")
+			if inp == "1" then
+				print("----PERFORMIMING ATTACK TO MEMORIZED VULNERABILITIES FOR: "+lib.lib_name()+"-----")
+				scanfunc_(lib,true,lanip)
+			else if inp == "2" then
+				print("Scanning memory address...")
+				scanfunc_(lib,false,lanip)
 			end if
-		end for
-		newlel = {}
-		for k in lel
-			val = k["value"]
-			if val.indexOf(".so") == null and val.indexOf(".") == null then 
-				newlel[newlel.len] = val.replace("<b>","").replace("</b>","")
-			end if
-	    end for
-        for l in newlel
-            print("Address: "+ itemMem)
-            print("Vuln Func: "+ l["value"])
-            if lanip then 
-				ovr = lib.overflow(itemMem,l["value"],lanip)
-			else 
-				ovr = lib.overflow(itemMem,l["value"],"1234")
-			end if
-            if typeof(ovr) == "shell" then
-                shells[shells.len+1] = {"mem":itemMem,"value": l["value"]}
-            else if typeof(ovr) == "computer" then
-				computers[computers.len+1] = {"mem":itemMem,"value": l["value"]}
-			else if typeof(ovr) == "file" then
-				files[files.len+1] = {"mem":itemMem,"value": l["value"]}
-            else
-				print("----------")
-				print(typeof(ovr))
-				print(ovr)
-				print("----------")
-			end if
-        end for
-	end for
-	handles_(lib,shells,computers,routers,files,lanip)
+		end while
+	else
+		print("Scanning memory address...")
+		scanfunc_(lib,false,lanip)
+	end if
 else if params.len == 4 then
 	port = params[1] 
 	lanip = ""
