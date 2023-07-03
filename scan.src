@@ -129,14 +129,13 @@ shell_ = function(ovr)
 				else
 					get_shell.scp(home_dir+"/metaxploit.so","/"+user+"/",ovr)
 				end if
+				get_shell.scp(home_dir+"/metaxploit.so","/"+user+"/",ovr)
 				get_shell.scp(home_dir+"/scan","/"+user+"/",ovr)
 				print(home_dir+"/metaxploit.so")
 				vulnerabfiles = get_shell.host_computer.File(home_dir+"/vulnerabilities")
 				if vulnerabfiles.is_folder then
-					for file in vulnerabfiles.get_files
-						get_shell.scp(vulnerabfiles.path+"/"+file.name,"/"+user+"/vulnerabilities/",ovr)
-						print(vulnerabfiles.path+"/"+file.name)
-					end for
+					get_shell.scp(vulnerabfiles.path,"/"+user+"/",ovr)
+					print(vulnerabfiles.path)
 				end if
 			else
 				if get_shell.host_computer.File("/lib/metaxploit.so") != null then
@@ -149,10 +148,8 @@ shell_ = function(ovr)
 				print(home_dir+"/metaxploit.so")
 				vulnerabfiles = get_shell.host_computer.File(home_dir+"/vulnerabilities")
 				if vulnerabfiles.is_folder then
-					for file in vulnerabfiles.get_files
-						get_shell.scp(vulnerabfiles.path+"/"+file.name,"/home/"+user+"/vulnerabilities/",ovr)
-						print(vulnerabfiles.path+"/"+file.name)
-					end for
+					get_shell.scp(vulnerabfiles.path,"/home/"+user+"/",ovr)
+					print(vulnerabfiles.path)
 				end if
 			end if
 			ovr.start_terminal()
