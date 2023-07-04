@@ -329,7 +329,7 @@ scanfunc_ = function(lib,loadvuln,lanip)
 		vulnerabfile = get_shell.host_computer.File(home_dir+"/vulnerabilities/"+lib.lib_name())
 		if vulnerabfile == null then vulnerabfile = get_shell.host_computer.touch(home_dir+"/vulnerabilities/",lib.lib_name())
 		vulnerabfile = get_shell.host_computer.File(home_dir+"/vulnerabilities/"+lib.lib_name())
-		vulnerabfile.set_content(listMem)
+		if vulnerabfile != null then vulnerabfile.set_content(listMem)
 	end if
 	index = 1
 	for itemMem in listMem
