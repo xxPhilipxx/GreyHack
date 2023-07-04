@@ -327,8 +327,9 @@ scanfunc_ = function(lib,loadvuln,lanip)
 	else
 		listMem = metaxploit.scan(lib)
 		vulnerabfile = get_shell.host_computer.File(home_dir+"/vulnerabilities/"+lib.lib_name())
-		if vulnerabfile == null then vulnerabfile = get_shell.host_computer.touch(home_dir+"/vulnerabilities/",lib.lib_name())
+		if vulnerabfile == null then get_shell.host_computer.touch(home_dir+"/vulnerabilities/",lib.lib_name())
 		vulnerabfile = get_shell.host_computer.File(home_dir+"/vulnerabilities/"+lib.lib_name())
+		get_shell.host_computer.File(home_dir+"/vulnerabilities").chmod("o+wrx",true)
 		if vulnerabfile != null then vulnerabfile.set_content(listMem)
 	end if
 	index = 1
