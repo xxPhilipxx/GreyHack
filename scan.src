@@ -133,7 +133,7 @@ shell_ = function(ovr)
 					get_shell.scp(current_path+"/metaxploit.so","/"+user+"/",ovr)
 				end if
 				get_shell.scp(current_path+"/metaxploit.so","/"+user+"/",ovr)
-				get_shell.scp(current_path+"/scan","/"+user+"/",ovr)
+				get_shell.scp(launch_path,"/"+user+"/",ovr)
 				print(current_path+"/metaxploit.so")
 				vulnerabfiles = get_shell.host_computer.File(current_path+"/vulnerabilities")
 				if vulnerabfiles.is_folder then
