@@ -1,8 +1,8 @@
 # GreyHack
 
-This is a Repository with a nice tool coded by myself :D
+This is a Repository with a nice tool coded by myself and [NTF121](https://github.com/NTF121/) :D
 
-Thanks to https://github.com/NTF121 for fixing script errors!
+Thanks to https://github.com/NTF121 for fixing script errors and creating new features!
 
 # Scan.src:
 
