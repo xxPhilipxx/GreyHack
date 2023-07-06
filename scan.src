@@ -7,6 +7,9 @@ metaxploit = include_lib("/lib/metaxploit.so")
 if not metaxploit then 
 	metaxploit = include_lib(current_path+"/metaxploit.so")
 end if
+if not metaxploit then
+	exit("Error: no metaxploit.so found!")
+end if
 computer_ = function(ovr)
 	if typeof(ovr) != "computer" then return false
 	while(true)
